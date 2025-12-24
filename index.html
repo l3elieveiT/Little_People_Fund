@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กองทุนคนตัวเล็ก - ไทยสร้างไทย</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body x-data="loanApp()">
+
+    <div x-show="loading" class="fixed inset-0 z-[100] bg-purple-900/90 flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-pink-500 mb-4"></div>
+    </div>
+
+    <div class="max-w-md mx-auto min-h-screen relative overflow-hidden flex flex-col shadow-2xl">
+        
+        <div x-show="step === 'welcome'" class="page-container justify-center p-8 relative z-10 animate__animated animate__fadeIn">
+            <div class="text-center flex flex-col items-center gap-6">
+                <div class="p-6 bg-white rounded-[2rem] shadow-2xl inline-block">
+                    <img src="Thai_Srang_Thai_Party.png" class="h-24 mx-auto" alt="Logo">
+                </div>
+                <div class="space-y-2">
+                    <h1 class="font-bold text-pink-400 text-5xl leading-tight">กองทุนคนตัวเล็ก</h1>
+                    <p class="text-purple-100 text-lg font-bold leading-relaxed">
+                        กองทุนที่จะเปลี่ยนชีวิตพ่อค้าแม่ค้า <br>
+                        กู้ง่าย ดอกต่ำ ไม่ต้องมีหลักทรัพย์
+                    </p>
+                </div>
+            </div>
+            <div class="mt-12 space-y-4 w-full">
+                <button @click="nextStep('calc')" class="w-full bg-pink-500 text-white py-5 rounded-2xl font-bold text-xl shadow-xl active:scale-95 transition-all">คำนวณวงเงินกู้ของคุณ</button>
+                <button @click="nextStep('terms')" class="w-full bg-white/10 text-white py-4 rounded-2xl font-bold border border-white/20">อ่านเงื่อนไขกองทุน</button>
+            </div>
+            <p class="text-center text-white/50 text-[10px] mt-10 uppercase tracking-widest">นโยบายหลักพรรคไทยสร้างไทย</p>
+        </div>
+
+        <div x-show="step === 'terms'" class="page-container relative z-10 animate__animated animate__fadeInRight p-6 text-white">
+            <header class="flex items-center justify-between mb-8">
+                <button @click="nextStep('welcome')" class="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center border border-white/20 font-bold text-lg">←</button>
+                <div class="font-bold uppercase text-xs tracking-widest">เงื่อนไขกองทุน</div>
+                <div class="w-10"></div>
+            </header>
+            <h2 class="text-3xl font-bold mb-6 leading-tight text-white">สวัสดิการที่ <br><span class="text-pink-400">ยุติธรรมสำหรับคุณ</span></h2>
+            <div class="glass-dark rounded-[2.5rem] p-6 space-y-6 overflow-y-auto max-h-[60vh] mb-6">
+                <p class="text-sm opacity-80 leading-relaxed">1. ผู้กู้ต้องเป็นประชาชนไทยที่ประกอบอาชีพรายย่อย</p>
+                <p class="text-sm opacity-80 leading-relaxed">2. ดอกเบี้ยต่ำ 0.5% - 1% ต่อเดือน</p>
+                <p class="text-sm opacity-80 leading-relaxed">3. ไม่ต้องใช้หลักทรัพย์หรือคนค้ำประกัน</p>
+            </div>
+        </div>
+
+        <div x-show="step === 'calc'" class="page-container p-6 z-10 animate__animated animate__fadeInRight">
+            <header class="flex justify-between items-center mb-8 text-white">
+                <button @click="nextStep('welcome')" class="opacity-70 text-sm font-bold">← หน้าแรก</button>
+                <div class="text-[10px] font-bold">STEP 01/03</div>
+            </header>
+            <h2 class="text-3xl font-bold text-white mb-8">เลือก <span class="text-pink-400">วงเงินลงทุน</span></h2>
+            <div class="glass-card rounded-[3rem] p-8 shadow-2xl flex flex-col gap-8">
+                <div class="text-center">
+                    <span class="text-5xl font-bold text-tst-purple" x-text="Number(amount).toLocaleString()"></span>
+                    <span class="text-xl font-bold text-tst-purple ml-1">บาท</span>
+                </div>
+                <input type="range" min="5000" max="50000" step="1000" x-model="amount" class="w-full h-2 rounded-lg appearance-none cursor-pointer shadow-inner">
+                <div class="grid grid-cols-4 gap-2">
+                    <template x-for="m in [6, 12, 18, 24]">
+                        <button @click="term = m" :class="term === m ? 'tst-purple text-white' : 'bg-gray-100 text-gray-400'" class="py-3 rounded-2xl font-bold text-sm" x-text="m"></button>
+                    </template>
+                </div>
+                <div class="bg-purple-900 rounded-[2rem] p-6 text-white text-center">
+                    <p class="text-[10px] opacity-60 mb-1 font-bold">ค่างวดต่อเดือนประมาณการ</p>
+                    <p class="text-3xl font-bold text-pink-400" x-text="calculateMonthly() + ' ฿'"></p>
+                </div>
+                <button @click="nextStep('form')" class="w-full bg-pink-500 text-white py-5 rounded-2xl font-bold text-lg shadow-xl">ไปกรอกข้อมูล</button>
+            </div>
+        </div>
+
+        <div x-show="step === 'form'" class="page-container p-6 z-10 animate__animated animate__fadeInRight text-white">
+            <header class="flex justify-between items-center mb-8">
+                <button @click="nextStep('calc')" class="opacity-70 text-sm font-bold">← ย้อนกลับ</button>
+                <div class="text-[10px] font-bold">STEP 02/03</div>
+            </header>
+            <h2 class="text-3xl font-bold mb-8 leading-tight">ข้อมูลส่วนตัว</h2>
+            <div class="space-y-4">
+                <div class="glass-card p-4 rounded-2xl border border-white/30">
+                    <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">เลขบัตรประชาชน (ตัวเลข)</label>
+                    <input type="text" x-model="idCard" placeholder="1-xxxx-xxxxx-xx-x" class="w-full bg-transparent border-none outline-none text-lg font-bold text-tst-purple">
+                </div>
+                <div class="glass-card p-4 rounded-2xl border border-white/30">
+                    <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">ชื่อ-นามสกุล (ตัวอักษร)</label>
+                    <input type="text" x-model="fullName" placeholder="ชื่อจริง - นามสกุล" class="w-full bg-transparent border-none outline-none text-lg font-bold text-tst-purple">
+                </div>
+                <div class="glass-card p-4 rounded-2xl border border-white/30">
+                    <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">เบอร์โทรศัพท์ (ตัวเลข)</label>
+                    <input type="tel" x-model="phone" placeholder="0xx-xxx-xxxx" class="w-full bg-transparent border-none outline-none text-lg font-bold text-tst-purple">
+                </div>
+                <button @click="validate()" class="w-full bg-pink-500 text-white py-5 rounded-2xl font-bold text-lg shadow-2xl mt-4">ยืนยันข้อมูล</button>
+            </div>
+        </div>
+
+        <div x-show="step === 'error-page'" class="page-container items-center justify-center p-8 z-10 animate__animated animate__headShake text-white text-center">
+            <div class="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-3xl mb-6 shadow-xl font-bold">!</div>
+            <h2 class="text-2xl font-bold mb-6">กรุณาตรวจสอบข้อมูล</h2>
+            <div class="glass-card p-6 rounded-[2rem] w-full space-y-3 text-gray-800 text-left">
+                <template x-for="err in errors">
+                    <p class="text-sm text-red-600 font-bold flex items-center gap-2">❌ <span x-text="err"></span></p>
+                </template>
+            </div>
+            <button @click="step = 'form'" class="mt-10 bg-white text-tst-purple px-10 py-4 rounded-2xl w-full font-bold shadow-xl">กลับไปแก้ไข</button>
+        </div>
+
+        <div x-show="step === 'success'" class="page-container items-center justify-center p-8 z-10 animate__animated animate__zoomIn text-white text-center">
+            <div class="w-40 h-40 bg-[#4ade80] rounded-full flex items-center justify-center text-7xl shadow-xl mb-10">✓</div>
+            <h2 class="text-4xl font-bold mb-10">จองสิทธิ์สำเร็จ</h2>
+            <div class="glass-card p-10 rounded-[3rem] w-full text-center border border-white/40 shadow-2xl">
+                <p class="text-xs text-gray-400 mb-2 uppercase font-bold">Booking ID</p>
+                <div class="text-4xl font-bold text-tst-purple tracking-tighter">TST-9942</div>
+                <p class="text-xl font-bold text-tst-purple mt-4" x-text="'คุณ ' + fullName"></p>
+                <p class="text-xs leading-relaxed text-gray-500 mt-2 font-bold">ทีมงานไทยสร้างไทยจะติดต่อกลับหาท่าน</p>
+            </div>
+            <button @click="nextStep('welcome')" class="mt-16 text-white/70 text-sm underline font-bold">กลับหน้าแรก</button>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
